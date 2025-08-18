@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pongg</title>
+    <style>
+        #quadro {
+            border: 2px solid #000;
+            background: rgb(0, 0, 0);
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
+        integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
+</head>
+
+<body>
+        <canvas id="quadro" width="1000" height="600"></canvas>
+
+    <script>
+       $().ready(function () {
+            var canvas = $("#quadro")[0];
+            var ctx = canvas.getContext("2d");
+
+    var p1 = {
+        "vx": 0,
+        "vy": 0,
+        "x": 50,
+        "y": canvas.height/2 - 35,
+        "l": 10,
+        "a": 80,
+        "cor": "blue",
+        atualiza: function () {
+            this.x += this.vx;  
+            this.y += this.vy;
+        },
+        desenharObjeto: function () {
+            ctx.fillStyle = this.cor;
+            ctx.fillRect(this.x, this.y, this.l, this.a);
+        }
+    }
+
+    var p2 = {
+    "vx": 0,
+    "vy": 0,
+    "x": canvas.width - 50, // lado direito
+    "y": canvas.height/2 - 35,
+    "l": 10,
+    "a": 80,
+    "cor": "red",
+    atualiza: function () {
+        this.x += this.vx;
+        this.y += this.vy;
+    },
+    desenharObjeto: function () {
+        ctx.fillStyle = this.cor;
+        ctx.fillRect(this.x, this.y, this.l, this.a);
+    }
+}
+
+
+
+    function desenharTela() {
+        apagarTela();
+
+        p1.atualiza();
+        detectaLimite(p1);
+        p1.desenharObjeto();
+
+        p2.atualiza();
+        detectaLimite(p2);
+        p2.desenharObjeto();
+
+        requestAnimationFrame(desenharTela);
+    }
+
+    function detectaLimite(p1) {
+        if (p1.x < 0) {
+            p1.x = 0;
+            p1.vx = 0;
+        }
+        if (p1.y < 0) {
+            p1.y = 0;
+            p1.vy = 0;
+        }
+        if (p1.x + p1.l > canvas.width) {
+            p1.x = canvas.width - p1.l;
+            p1.vx = 0;
+        }
+        if (p1.y + p1.a > canvas.height) {
+            p1.y = canvas.height - p1.a;
+            p1.vy = 0;
+        }
+    }
+
+    function detectaLimite(p2) {
+        if (p2.x < 0) {
+            p2.x = 0;
+            p2.vx = 0;
+        }
+        if (p2.y < 0) {
+            p2.y = 0;
+            p2.vy = 0;
+        }
+        if (p2.x + p2.l > canvas.width) {
+            p2.x = canvas.width - p2.l;
+            p2.vx = 0;
+        }
+        if (p2.y + p2.a > canvas.height) {
+            p2.y = canvas.height - p2.a;
+            p2.vy = 0;
+        }
+    }
+
+    function apagarTela() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    desenharTela();
+    
+    $(window).keydown(function (event) {
+        if (event.which == 38) { //seta cima
+            p1.vy = -3;
+            p1.vx = 0;
+        }
+        if (event.which == 40) { //seta baixo
+            p1.vy = 3;
+            p1.vx = 0;
+        }
+        if (event.which == 87) { // tecla W
+        p2.vy = -3;
+        p2.vx = 0;
+        }
+        if (event.which == 83) { // tecla S
+            p2.vy = 3;
+            p2.vx = 0;
+        }
+    });
+});
+    </script>
+</body>
+
+</html>
