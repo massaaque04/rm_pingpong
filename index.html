@@ -44,22 +44,40 @@
     }
 
     var p2 = {
-    "vx": 0,
-    "vy": 0,
-    "x": canvas.width - 50, // lado direito
-    "y": canvas.height/2 - 35,
-    "l": 10,
-    "a": 80,
-    "cor": "red",
-    atualiza: function () {
-        this.x += this.vx;
-        this.y += this.vy;
-    },
-    desenharObjeto: function () {
-        ctx.fillStyle = this.cor;
-        ctx.fillRect(this.x, this.y, this.l, this.a);
+        "vx": 0,
+        "vy": 0,
+        "x": canvas.width - 50, // lado direito
+        "y": canvas.height/2 - 35,
+        "l": 10,
+        "a": 80,
+        "cor": "red",
+        atualiza: function () {
+            this.x += this.vx;
+            this.y += this.vy;
+        },
+        desenharObjeto: function () {
+            ctx.fillStyle = this.cor;
+            ctx.fillRect(this.x, this.y, this.l, this.a);
+        }
     }
-}
+
+    var bolinha = {
+        "vx": 0,
+        "vy": 0,
+        "x": canvas.width/2, // lado direito
+        "y": canvas.height/2,
+        "l": 20,
+        "a": 20,
+        "cor": "red",
+        atualiza: function () {
+            this.x += this.vx;
+            this.y += this.vy;
+        },
+        desenharObjeto: function () {
+            ctx.fillStyle = this.cor;
+            ctx.fillRect(this.x, this.y, this.l, this.a);
+        }
+    }
 
 
 
@@ -73,6 +91,10 @@
         p2.atualiza();
         detectaLimite(p2);
         p2.desenharObjeto();
+
+        bolinha.atualiza();
+        detectaLimite(bolinha);
+        bolinha.desenharObjeto();
 
         requestAnimationFrame(desenharTela);
     }
