@@ -25,6 +25,7 @@
             var canvas = $("#quadro")[0];
             var ctx = canvas.getContext("2d");
 
+            colisao = false
     var p1 = {
         "vx": 0,
         "vy": 0,
@@ -62,23 +63,46 @@
     }
 
     var bolinha = {
-        "vx": 0,
-        "vy": 0,
-        "x": canvas.width/2, // lado direito
-        "y": canvas.height/2,
-        "l": 20,
-        "a": 20,
-        "cor": "red",
-        atualiza: function () {
-            this.x += this.vx;
-            this.y += this.vy;
-        },
-        desenharObjeto: function () {
-            ctx.fillStyle = this.cor;
-            ctx.fillRect(this.x, this.y, this.l, this.a);
-        }
-    }
+    "vx": -3,
+    "vy": 3,
+    "x": canvas.width / 2, 
+    "y": canvas.height / 2,
+    "raio": 8,     
+    "cor": "white",
 
+    atualiza: function () {
+        this.x += this.vx;
+        this.y += this.vy;
+    },
+
+    desenharObjeto: function () {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.raio, 0, Math.PI * 2); // círculo completo
+        ctx.fillStyle = this.cor;
+        ctx.fill();
+        ctx.closePath();
+    }
+};
+
+function detectaColisaoCQ(bolinha, p) {
+    // Pega o ponto mais próximo do centro da bola dentro do retângulo
+    let maisProximoX = Math.max(p.x, Math.min(bolinha.x, p.x + p.l));
+    let maisProximoY = Math.max(p.y, Math.min(bolinha.y, p.y + p.a));
+
+    // Calcula a distância entre o centro da bola e esse ponto
+    let distX = bolinha.x - maisProximoX;
+    let distY = bolinha.y - maisProximoY;
+    let distancia = Math.sqrt(distX * distX + distY * distY);
+
+    // Se a distância for menor que o raio, houve colisão
+    if (distancia < bolinha.raio) {
+        colisao = true;
+        // Inverte a direção da bola no eixo X
+        bolinha.vx *= -1;
+    } else {
+        colisao = false;
+    }
+}
 
 
     function desenharTela() {
@@ -95,8 +119,13 @@
         bolinha.atualiza();
         detectaLimite(bolinha);
         bolinha.desenharObjeto();
-
+        
+        detectaColisaoCQ(bolinha, p1)
+        detectaColisaoCQ(bolinha, p2)
+        
         requestAnimationFrame(desenharTela);
+
+
     }
 
     function detectaLimite(p1) {
@@ -137,6 +166,30 @@
         }
     }
 
+    function detectaLimite(bolinha) {
+        if (bolinha.y < 0 || bolinha.y > canvas.height) {
+            //bolinha.y = 0;
+            bolinha.vy = bolinha.vy * -1;
+        }
+        if (bolinha.y + bolinha.raio > canvas.height) {
+            //bolinha.y = canvas.height - bolinha.a;
+            bolinha.vy = bolinha.vy * -1;
+        }
+
+        if (bolinha.x < 0) {
+            bolinha.x = 0;
+            bolinha.vx = 0;
+        }
+
+        if (bolinha.x + bolinha.raio > canvas.width) {
+            bolinha.x = canvas.width - bolinha.l;
+            bolinha.vx = 0;
+        }
+        
+    }
+
+
+
     function apagarTela() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
@@ -161,6 +214,14 @@
             p2.vx = 0;
         }
     });
+    $(window).keyup(function (event) {
+    if (event.which == 38 || event.which == 40) {
+        p1.vy = 0;
+    }
+    if (event.which == 87 || event.which == 83) {
+        p2.vy = 0;
+    }
+});
 });
     </script>
 </body>
