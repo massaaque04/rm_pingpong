@@ -18,211 +18,199 @@
 </head>
 
 <body>
-        <canvas id="quadro" width="1000" height="600"></canvas>
+    <canvas id="quadro" width="1000" height="600"></canvas>
 
     <script>
-       $().ready(function () {
+        $().ready(function () {
             var canvas = $("#quadro")[0];
             var ctx = canvas.getContext("2d");
 
-            colisao = false
-    var p1 = {
-        "vx": 0,
-        "vy": 0,
-        "x": 50,
-        "y": canvas.height/2 - 35,
-        "l": 10,
-        "a": 80,
-        "cor": "blue",
-        atualiza: function () {
-            this.x += this.vx;  
-            this.y += this.vy;
-        },
-        desenharObjeto: function () {
-            ctx.fillStyle = this.cor;
-            ctx.fillRect(this.x, this.y, this.l, this.a);
-        }
-    }
+            var colisao = false;
 
-    var p2 = {
-        "vx": 0,
-        "vy": 0,
-        "x": canvas.width - 50, // lado direito
-        "y": canvas.height/2 - 35,
-        "l": 10,
-        "a": 80,
-        "cor": "red",
-        atualiza: function () {
-            this.x += this.vx;
-            this.y += this.vy;
-        },
-        desenharObjeto: function () {
-            ctx.fillStyle = this.cor;
-            ctx.fillRect(this.x, this.y, this.l, this.a);
-        }
-    }
+            var pontosP1 = 0;
+            var pontosP2 = 0;
 
-    var bolinha = {
-    "vx": -3,
-    "vy": 3,
-    "x": canvas.width / 2, 
-    "y": canvas.height / 2,
-    "raio": 8,     
-    "cor": "white",
+            var p1 = {
+                "vx": 0,
+                "vy": 0,
+                "x": 50,
+                "y": canvas.height / 2 - 35,
+                "l": 10,
+                "a": 80,
+                "cor": "blue",
+                atualiza: function () {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                },
+                desenharObjeto: function () {
+                    ctx.fillStyle = this.cor;
+                    ctx.fillRect(this.x, this.y, this.l, this.a);
+                }
+            }
 
-    atualiza: function () {
-        this.x += this.vx;
-        this.y += this.vy;
-    },
+            var p2 = {
+                "vx": 0,
+                "vy": 0,
+                "x": canvas.width - 50,
+                "y": canvas.height / 2 - 35,
+                "l": 10,
+                "a": 80,
+                "cor": "red",
+                atualiza: function () {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                },
+                desenharObjeto: function () {
+                    ctx.fillStyle = this.cor;
+                    ctx.fillRect(this.x, this.y, this.l, this.a);
+                }
+            }
 
-    desenharObjeto: function () {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.raio, 0, Math.PI * 2); // círculo completo
-        ctx.fillStyle = this.cor;
-        ctx.fill();
-        ctx.closePath();
-    }
-};
+            var bolinha = {
+                "vx": -3,
+                "vy": 3,
+                "x": canvas.width / 2,
+                "y": canvas.height / 2,
+                "raio": 8,
+                "cor": "white",
 
-function detectaColisaoCQ(bolinha, p) {
-    // Pega o ponto mais próximo do centro da bola dentro do retângulo
-    let maisProximoX = Math.max(p.x, Math.min(bolinha.x, p.x + p.l));
-    let maisProximoY = Math.max(p.y, Math.min(bolinha.y, p.y + p.a));
+                atualiza: function () {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                },
 
-    // Calcula a distância entre o centro da bola e esse ponto
-    let distX = bolinha.x - maisProximoX;
-    let distY = bolinha.y - maisProximoY;
-    let distancia = Math.sqrt(distX * distX + distY * distY);
+                desenharObjeto: function () {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.raio, 0, Math.PI * 2);
+                    ctx.fillStyle = this.cor;
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            };
 
-    // Se a distância for menor que o raio, houve colisão
-    if (distancia < bolinha.raio) {
-        colisao = true;
-        // Inverte a direção da bola no eixo X
-        bolinha.vx *= -1;
-    } else {
-        colisao = false;
-    }
-}
+            function detectaColisaoCQ(bolinha, p) {
+                let maisProximoX = Math.max(p.x, Math.min(bolinha.x, p.x + p.l));
+                let maisProximoY = Math.max(p.y, Math.min(bolinha.y, p.y + p.a));
 
+                let distX = bolinha.x - maisProximoX;
+                let distY = bolinha.y - maisProximoY;
+                let distancia = Math.sqrt(distX * distX + distY * distY);
 
-    function desenharTela() {
-        apagarTela();
+                if (distancia < bolinha.raio) {
+                    colisao = true;
+                    bolinha.vx *= -1;
+                } else {
+                    colisao = false;
+                }
+            }
 
-        p1.atualiza();
-        detectaLimite(p1);
-        p1.desenharObjeto();
+            function reiniciaBolinha() {
+                bolinha.x = canvas.width / 2;
+                bolinha.y = canvas.height / 2;
 
-        p2.atualiza();
-        detectaLimite(p2);
-        p2.desenharObjeto();
+                // direção horizontal
+                if (Math.random() > 0.5) {
+                    bolinha.vx = 3;
+                } else {
+                    bolinha.vx = -3;
+                }
 
-        bolinha.atualiza();
-        detectaLimite(bolinha);
-        bolinha.desenharObjeto();
-        
-        detectaColisaoCQ(bolinha, p1)
-        detectaColisaoCQ(bolinha, p2)
-        
-        requestAnimationFrame(desenharTela);
+                // direção vertical
+                if (Math.random() > 0.5) {
+                    bolinha.vy = 3;
+                } else {
+                    bolinha.vy = -3;
+                }
+            }
 
+            function desenharTela() {
+                apagarTela();
 
-    }
+                p1.atualiza();
+                detectaLimite(p1);
+                p1.desenharObjeto();
 
-    function detectaLimite(p1) {
-        if (p1.x < 0) {
-            p1.x = 0;
-            p1.vx = 0;
-        }
-        if (p1.y < 0) {
-            p1.y = 0;
-            p1.vy = 0;
-        }
-        if (p1.x + p1.l > canvas.width) {
-            p1.x = canvas.width - p1.l;
-            p1.vx = 0;
-        }
-        if (p1.y + p1.a > canvas.height) {
-            p1.y = canvas.height - p1.a;
-            p1.vy = 0;
-        }
-    }
+                p2.atualiza();
+                detectaLimite(p2);
+                p2.desenharObjeto();
 
-    function detectaLimite(p2) {
-        if (p2.x < 0) {
-            p2.x = 0;
-            p2.vx = 0;
-        }
-        if (p2.y < 0) {
-            p2.y = 0;
-            p2.vy = 0;
-        }
-        if (p2.x + p2.l > canvas.width) {
-            p2.x = canvas.width - p2.l;
-            p2.vx = 0;
-        }
-        if (p2.y + p2.a > canvas.height) {
-            p2.y = canvas.height - p2.a;
-            p2.vy = 0;
-        }
-    }
+                bolinha.atualiza();
+                detectaLimite(bolinha);
+                bolinha.desenharObjeto();
 
-    function detectaLimite(bolinha) {
-        if (bolinha.y < 0 || bolinha.y > canvas.height) {
-            //bolinha.y = 0;
-            bolinha.vy = bolinha.vy * -1;
-        }
-        if (bolinha.y + bolinha.raio > canvas.height) {
-            //bolinha.y = canvas.height - bolinha.a;
-            bolinha.vy = bolinha.vy * -1;
-        }
+                detectaColisaoCQ(bolinha, p1)
+                detectaColisaoCQ(bolinha, p2)
 
-        if (bolinha.x < 0) {
-            bolinha.x = 0;
-            bolinha.vx = 0;
-        }
+                // desenhar placar
+                ctx.fillStyle = "white";
+                ctx.font = "30px Arial";
+                ctx.fillText(pontosP1, canvas.width / 4, 50);
+                ctx.fillText(pontosP2, 3 * canvas.width / 4, 50);
 
-        if (bolinha.x + bolinha.raio > canvas.width) {
-            bolinha.x = canvas.width - bolinha.l;
-            bolinha.vx = 0;
-        }
-        
-    }
+                requestAnimationFrame(desenharTela);
+            }
 
+            function detectaLimite(obj) {
+                // limites para jogadores
+                if (obj === p1 || obj === p2) {
+                    if (obj.y < 0) {
+                        obj.y = 0;
+                        obj.vy = 0;
+                    }
+                    if (obj.y + obj.a > canvas.height) {
+                        obj.y = canvas.height - obj.a;
+                        obj.vy = 0;
+                    }
+                }
 
+                // limites para a bolinha
+                if (obj === bolinha) {
+                    if (bolinha.y - bolinha.raio < 0 || bolinha.y + bolinha.raio > canvas.height) {
+                        bolinha.vy *= -1;
+                    }
 
-    function apagarTela() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+                    if (bolinha.x - bolinha.raio < 0) {
+                        pontosP2++;
+                        reiniciaBolinha();
+                    }
 
-    desenharTela();
-    
-    $(window).keydown(function (event) {
-        if (event.which == 38) { //seta cima
-            p1.vy = -3;
-            p1.vx = 0;
-        }
-        if (event.which == 40) { //seta baixo
-            p1.vy = 3;
-            p1.vx = 0;
-        }
-        if (event.which == 87) { // tecla W
-        p2.vy = -3;
-        p2.vx = 0;
-        }
-        if (event.which == 83) { // tecla S
-            p2.vy = 3;
-            p2.vx = 0;
-        }
-    });
-    $(window).keyup(function (event) {
-    if (event.which == 38 || event.which == 40) {
-        p1.vy = 0;
-    }
-    if (event.which == 87 || event.which == 83) {
-        p2.vy = 0;
-    }
-});
-});
+                    if (bolinha.x + bolinha.raio > canvas.width) {
+                        pontosP1++;
+                        reiniciaBolinha();
+                    }
+                }
+            }
+
+            function apagarTela() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            desenharTela();
+
+            $(window).keydown(function (event) {
+                if (event.which == 38) { //seta cima
+                    p1.vy = -3;
+                }
+                if (event.which == 40) { //seta baixo
+                    p1.vy = 3;
+                }
+                if (event.which == 87) { // tecla W
+                    p2.vy = -3;
+                }
+                if (event.which == 83) { // tecla S
+                    p2.vy = 3;
+                }
+            });
+
+            $(window).keyup(function (event) {
+                if (event.which == 38 || event.which == 40) {
+                    p1.vy = 0;
+                }
+                if (event.which == 87 || event.which == 83) {
+                    p2.vy = 0;
+                }
+            });
+        });
     </script>
 </body>
 
