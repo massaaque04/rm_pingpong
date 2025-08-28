@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ping Pongg</title>
+
+    <!-- Estilo básico do canvas -->
     <style>
         #quadro {
             border: 2px solid #000;
@@ -13,41 +15,53 @@
             margin: 0 auto;
         }
     </style>
+
+    <!-- Inclusão do jQuery (versão slim) -->
     <script src="https://code.jquery.com/jquery-3.7.1.slim.js"
         integrity="sha256-UgvvN8vBkgO0luPSUl2s8TIlOSYRoGFAX4jlCIm9Adc=" crossorigin="anonymous"></script>
 </head>
 
 <body>
+
+    <!-- Canvas onde o jogo será desenhado -->
     <canvas id="quadro" width="1000" height="600"></canvas>
 
     <script>
+        // Aguarda o carregamento da página para executar o código
         $().ready(function () {
             var canvas = $("#quadro")[0];
-            var ctx = canvas.getContext("2d");
+            var ctx = canvas.getContext("2d"); // contexto 2D para desenhar no canvas
 
-            var colisao = false;
+            var colisao = false; // controle de colisão (usado para evitar múltiplas inversões)
 
+            // placar dos jogadores
             var pontosP1 = 0;
             var pontosP2 = 0;
 
+            // Jogador 1 (lado esquerdo)
             var p1 = {
                 "vx": 0,
                 "vy": 0,
                 "x": 50,
                 "y": canvas.height / 2 - 35,
-                "l": 10,
-                "a": 80,
+                "l": 10, // largura
+                "a": 80, // altura
                 "cor": "blue",
+
+                // Atualiza a posição com base na velocidade
                 atualiza: function () {
                     this.x += this.vx;
                     this.y += this.vy;
                 },
+
+                // Desenha o jogador 1 no canvas
                 desenharObjeto: function () {
                     ctx.fillStyle = this.cor;
                     ctx.fillRect(this.x, this.y, this.l, this.a);
                 }
             }
 
+            // Jogador 2 (lado direito)
             var p2 = {
                 "vx": 0,
                 "vy": 0,
@@ -56,16 +70,19 @@
                 "l": 10,
                 "a": 80,
                 "cor": "red",
+
                 atualiza: function () {
                     this.x += this.vx;
                     this.y += this.vy;
                 },
+
                 desenharObjeto: function () {
                     ctx.fillStyle = this.cor;
                     ctx.fillRect(this.x, this.y, this.l, this.a);
                 }
             }
 
+            // Objeto bolinha
             var bolinha = {
                 "vx": -3,
                 "vy": 3,
@@ -88,6 +105,7 @@
                 }
             };
 
+            // Detecta colisão entre bolinha (círculo) e jogador (retângulo)
             function detectaColisaoCQ(bolinha, p) {
                 let maisProximoX = Math.max(p.x, Math.min(bolinha.x, p.x + p.l));
                 let maisProximoY = Math.max(p.y, Math.min(bolinha.y, p.y + p.a));
@@ -98,60 +116,58 @@
 
                 if (distancia < bolinha.raio) {
                     colisao = true;
-                    bolinha.vx *= -1;
+                    bolinha.vx *= -1; // inverte direção horizontal da bolinha
                 } else {
                     colisao = false;
                 }
             }
 
+            // Reinicia posição e direção da bolinha após pontuação
             function reiniciaBolinha() {
                 bolinha.x = canvas.width / 2;
                 bolinha.y = canvas.height / 2;
 
-                // direção horizontal
-                if (Math.random() > 0.5) {
-                    bolinha.vx = 3;
-                } else {
-                    bolinha.vx = -3;
-                }
-
-                // direção vertical
-                if (Math.random() > 0.5) {
-                    bolinha.vy = 3;
-                } else {
-                    bolinha.vy = -3;
-                }
+                // Gera direção aleatória
+                bolinha.vx = Math.random() > 0.5 ? 3 : -3;
+                bolinha.vy = Math.random() > 0.5 ? 3 : -3;
             }
 
+            // Função principal que desenha tudo a cada frame
             function desenharTela() {
                 apagarTela();
 
+                // Atualiza e desenha jogador 1
                 p1.atualiza();
                 detectaLimite(p1);
                 p1.desenharObjeto();
 
+                // Atualiza e desenha jogador 2
                 p2.atualiza();
                 detectaLimite(p2);
                 p2.desenharObjeto();
 
+                // Atualiza e desenha bolinha
                 bolinha.atualiza();
                 detectaLimite(bolinha);
                 bolinha.desenharObjeto();
 
-                detectaColisaoCQ(bolinha, p1)
-                detectaColisaoCQ(bolinha, p2)
+                // Verifica colisão com os jogadores
+                detectaColisaoCQ(bolinha, p1);
+                detectaColisaoCQ(bolinha, p2);
 
-                // desenhar placar
+                // Desenha placar
                 ctx.fillStyle = "white";
                 ctx.font = "30px Arial";
                 ctx.fillText(pontosP1, canvas.width / 4, 50);
                 ctx.fillText(pontosP2, 3 * canvas.width / 4, 50);
 
+                // Chama a próxima atualização da tela (loop infinito)
                 requestAnimationFrame(desenharTela);
             }
 
+            // Limita o movimento dos jogadores e a bolinha dentro da tela
             function detectaLimite(obj) {
-                // limites para jogadores
+                // Jogadores
                 if (obj === p1 || obj === p2) {
                     if (obj.y < 0) {
                         obj.y = 0;
@@ -163,17 +179,20 @@
                     }
                 }
 
-                // limites para a bolinha
+                // Bolinha
                 if (obj === bolinha) {
+                    // Rebater nas bordas superior/inferior
                     if (bolinha.y - bolinha.raio < 0 || bolinha.y + bolinha.raio > canvas.height) {
                         bolinha.vy *= -1;
                     }
 
+                    // Ponto para jogador 2 (bolinha saiu pela esquerda)
                     if (bolinha.x - bolinha.raio < 0) {
                         pontosP2++;
                         reiniciaBolinha();
                     }
 
+                    // Ponto para jogador 1 (bolinha saiu pela direita)
                     if (bolinha.x + bolinha.raio > canvas.width) {
                         pontosP1++;
                         reiniciaBolinha();
@@ -181,27 +200,31 @@
                 }
             }
 
+            // Limpa o canvas
             function apagarTela() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
 
+            // Inicia o loop do jogo
             desenharTela();
 
+            // Controles do teclado - pressionar tecla
             $(window).keydown(function (event) {
-                if (event.which == 38) { //seta cima
+                if (event.which == 38) { // Seta cima (controle jogador 1)
                     p1.vy = -3;
                 }
-                if (event.which == 40) { //seta baixo
+                if (event.which == 40) { // Seta baixo (controle jogador 1)
                     p1.vy = 3;
                 }
-                if (event.which == 87) { // tecla W
+                if (event.which == 87) { // W (controle jogador 2)
                     p2.vy = -3;
                 }
-                if (event.which == 83) { // tecla S
+                if (event.which == 83) { // S (controle jogador 2)
                     p2.vy = 3;
                 }
             });
 
+            // Controles do teclado - soltar tecla
             $(window).keyup(function (event) {
                 if (event.which == 38 || event.which == 40) {
                     p1.vy = 0;
